@@ -1,0 +1,317 @@
+/* === General Page Styling === */
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: left;
+    margin-left: 20px;
+}
+
+.logo {
+    max-width: 350px;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+/* === Form Styling === */
+form {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    position: relative;
+}
+
+fieldset {
+    background: linear-gradient(to right, #f0f4ff, #ffffff);
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 2px solid black;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+    border-left: 5px solid #007bff;
+    position: relative;
+}
+
+legend {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+    padding: 5px 10px;
+    width: auto;
+    text-align: left;
+    border: 2px solid #007bff; /* Thick border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f8f9fa; /* Optional: Light background */
+}
+
+select:invalid {
+    color: gray;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: left;
+}
+
+input, select {
+    width: calc(100% - 16px); 
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; 
+}
+input, select, button, textarea {
+    transition: all 0.3s ease-in-out;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+
+
+/* === Layout Adjustments === */
+.top-left {
+    position: relative;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.form-grid {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+}
+.form-grid:not(:last-child)::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: #ccc;
+    margin: 20px 0;
+}
+
+.left-field, .right-field {
+    width: 50%;
+}
+
+.right-field {
+    align-self: stretch; /* Makes right fieldsets align with the height of the left fieldsets */
+}
+
+.wide-legend {
+    width: 100%;
+}
+
+.middle-legend {
+    width: 100%;
+}
+
+/* Ensure uniform input sizes inside fieldsets */
+fieldset input, fieldset select {
+    width: calc(100% - 16px); /* Ensures uniform input sizes inside fieldsets */
+}
+
+/* === Submit Button === */
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* === Custom Popup Modal Styling === */
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    text-align: center;
+    width: 300px;
+}
+
+.modal-content p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
+.modal-content button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background: #0056b3;
+}
+
+/* === Results Page Styling === */
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.image-container img {
+    max-width: 100%;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* === Download Button === */
+.download-btn {
+    display: inline-block;
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 5px;
+    margin-top: 10px;
+    
+}
+
+.download-btn:hover {
+    background: #0056b3;
+}
+
+/* === Re-generate Button === */
+.regenerate-btn {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.regenerate-btn:hover {
+    background: #218838;
+}
+
+button, .download-btn, .regenerate-btn {
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease-in-out;
+    transform: translateY(0);
+}
+  button:hover, .download-btn:hover, .regenerate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
+  
+
+/* === Bottom Legend (Additional Options) === */
+.bottom-legend {
+    margin-top: 30px;
+}
+input:disabled, select:disabled {
+    background-color: #e0e0e0;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+textarea#additional_message {
+    width: 100%;
+    max-width: 100%;
+    min-height: 160px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1.8px solid #ccc;
+    border-radius: 12px;
+    resize: none; 
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    background-color: #fff;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    box-sizing: border-box;
+    transition: height 0.2s ease;
+}
+
+
+textarea#additional_message:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+label[for="additional_message"] {
+    margin-top: 15px;
+    display: inline-block;
+    font-size: 16px;
+}
+
+
+footer {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+}
+.app-title {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 20px;
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+  }
+  .section-divider {
+    border: none;
+    height: 2px;
+    background: #007bff;
+    margin: 30px 0;
+  }
+  .app-version {
+    font-size: 14px;
+    color: #666;
+    text-align: right;
+    margin-top: 20px;
+  }
+  .version-text {
+    position: absolute;
+    right: 40px;  /* distance from the right */
+    bottom: 20px; /* aligns with footer bottom */
+    font-size: 14px;
+    color: #666;
+}
+  

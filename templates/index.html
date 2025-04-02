@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+  </header>
+  
+
+  <h1>Enter Measurements</h1>
+  <form method="POST" action="/">
+    
+    <fieldset class="top-left">
+      <legend>Screen Name</legend>
+      <label for="harp_name">Screen Name:</label>
+      <input type="text" id="harp_name" name="harp_name">
+    </fieldset>
+
+    <div class="form-grid">
+      <fieldset class="left-field">
+        <legend><i class="fas fa-ruler-combined"></i>Overall Dimensions</legend>
+        <label for="width">Width (mm):</label>
+        <input type="text" id="width" name="width">
+  
+        <label for="height">Height (mm):</label>
+        <input type="text" id="height" name="height">
+  
+        <label for="background_type">Screen Type:</label>
+        <select id="background_type" name="background_type">
+          <option value="" selected disabled>Select Screen Type</option>
+          <option value="PU Hert">PU Hert</option>
+          <option value="Diamond Type">Diamond Type</option>
+          <option value="S Type">S Type</option>
+          <option value="T Type">T Type</option>
+        </select>
+
+        <label for="magnified_image">Magnified Aperture Image:</label>
+        <select id="magnified_image" name="magnified_image">
+          <option value="" selected disabled>Select Magnified Aperture Image</option>
+          <option value="PUHert">Magnified PU Hert</option>
+          <option value="DimondType">Magnified Dimond Type</option>
+          <option value="SType">Magnified S Type</option>
+          <option value="TType">Magnified T Type</option>
+        </select>
+
+        <label for="poly_ridge">Poly Ridge Style:</label>
+        <select id="poly_ridge" name="poly_ridge">
+          <option value="" selected disabled>Select Ridge Style</option>
+          <option value="">None</option>
+          <option value="Bottom Pu Strip">Bottom Pu Strip Only</option>
+          <option value="Top Pu Strip">Top PU Strip Only</option>
+          <option value="To and Bottom Pu Strip">Top and Bottom Pu Strip</option>
+        </select>
+      </fieldset>
+  
+      <fieldset class="right-field">
+        <legend>PU Strips & Center PU Strip</legend>
+        <label for="pu_quantity">Number of PU Strips:</label>
+        <input type="text" id="pu_quantity" name="pu_quantity" min="2" max="9">
+  
+        <label for="center_overlap">Center PU Strip:</label>
+        <select id="center_overlap" name="center_overlap">
+          <option value="" selected disabled>Select Center PU Strip</option>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        <div id="distance_fields_container"></div>
+      </fieldset>
+    </div>
+    <hr class="section-divider">
+
+    <div class="form-grid">
+      <fieldset class="left-field">
+        <legend>Hook Type</legend>
+        <label for="hook_type">Select Hook Type:</label>
+        <select id="hook_type" name="hook_type">
+          <option value="" selected disabled>Select Hook Type</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="14">14</option>
+          <option value="15">15</option>
+          <option value="16">16</option>
+          <option value="17">17</option>
+          <option value="18">18</option>
+          <option value="19">19</option>
+          <option value="20">20</option>
+        </select>
+      </fieldset>
+  
+      <fieldset class="right-field">
+        <legend>PU Sickness and Center Strip Detail</legend>
+        <label for="pu_sickness_image">Magnified PU Sickness Image:</label>
+        <select id="pu_sickness_image" name="pu_sickness_image">
+          <option value="" selected disabled>Select Magnified PU Sickness Image</option>
+          <option value="">None</option>
+          <option value="PUSizeDetail">PU Sickness Image</option>
+        </select>
+        <label for="center_strip_image">Magnified Center Strip Image:</label>
+        <select id="center_strip_image" name="center_strip_image">
+          <option value="" selected disabled>Select Magnified Center Strip Image</option>
+          <option value="">None</option>
+          <option value="CenterStripDetail">Center Strip Image</option>
+        </select>
+      </fieldset>
+    </div>
+    <hr class="section-divider">
+
+    <fieldset class="bottom-legend wide-legend">
+      <legend>Additional Options</legend>
+      <label for="overlap">Bottom Overlap:</label>
+      <select id="overlap" name="overlap">
+        <option value="" selected disabled>Select Bottom Overlap</option>
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+      </select>
+  
+      <label for="center_holes">Center Holes:</label>
+      <select id="center_holes" name="center_holes">
+        <option value="" selected disabled>Select Center Holes</option>
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+      </select>
+  
+      <label for="num_center_holes">Number of Center Holes:</label>
+      <input type="number" id="num_center_holes" name="num_center_holes" value="0">
+  
+      <label for="hole_distances">Hole Distances (comma-separated):</label>
+      <input type="text" id="hole_distances" name="hole_distances">
+
+      <label for="additional_pu_strip">Additional PU Strip:</label>
+      <select id="additional_pu_strip" name="additional_pu_strip">
+        <option value="" selected disabled>Select Additional PU Strip</option>
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+      </select>
+
+      <div id="additional_distances" style="display: none;">
+        <h3>Select Distances for Additional PU Strips:</h3>
+        <div id="checkbox_container"></div>
+      </div>
+
+      <label for="additional_message">Additional Information:</label>
+      <textarea id="additional_message" name="additional_message" rows="8" style="width: 100%;"></textarea>
+    </fieldset>
+  
+    <button type="submit">Generate Image</button>
+  </form>
+  <footer>
+    <p>© 2025 Screen Generator | Designed by Krishna Patel</p>
+  </footer>
+  
+  
+  {% if error_message %}
+  <script>
+    alert("{{ error_message }}");
+  </script>
+  {% endif %}
+  
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
