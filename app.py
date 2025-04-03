@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 import numpy as np
-import matplotlib.pyplot as plt
 from io import BytesIO
 import base64, tempfile
 from PIL import ImageFont, ImageDraw, Image
@@ -8,7 +7,7 @@ from flask import send_file
 from reportlab.pdfgen import canvas as pdf_canvas
 from reportlab.lib.pagesizes import A4
 from PIL import Image as PILImage
-import os
+
 
 
 app = Flask(__name__)
@@ -529,7 +528,7 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
     
     # Save image in memory and encode as base64
     img_io = BytesIO()
-    plt.imsave(img_io, canvas.astype(np.uint8), format='png', dpi=300)
+    canvas_pil.save(img_io, format='PNG')
     img_io.seek(0)
     image_data = base64.b64encode(img_io.getvalue()).decode('ascii')
     return image_data
