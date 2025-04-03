@@ -662,7 +662,7 @@ def download_pdf(harp_name):
     return send_file(pdf_file.name, as_attachment=True, download_name=f"{harp_name}.pdf", mimetype='application/pdf')
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT, 10000'))
+    port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
     #app.run(debug=True)
     
