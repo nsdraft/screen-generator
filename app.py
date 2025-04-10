@@ -760,7 +760,6 @@ def download_pdf(harp_name):
 
     return send_file(pdf_file.name, as_attachment=True, download_name=f"{harp_name}.pdf", mimetype='application/pdf')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
 
 
