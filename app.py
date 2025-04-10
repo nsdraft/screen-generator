@@ -8,6 +8,8 @@ from flask import send_file
 from reportlab.pdfgen import canvas as pdf_canvas
 from reportlab.lib.pagesizes import A4
 from PIL import Image as PILImage
+from datetime import datetime
+
 
 
 app = Flask(__name__)
@@ -38,20 +40,43 @@ def apply_background(canvas, background_type, y_start, bar_height, x_start, x_en
                     canvas[y, x] = [0, 0, 0]
     return canvas
 
-def draw_horizontal_arrow(draw, x1, x2, y, text, font):
+def draw_horizontal_arrow(draw, x1, x2, y, text, font, draw_left_tick=True, draw_right_tick=True):
     arrow_size = 10
     text_padding = 10
+    tick_length = 50
+    tick_width = 4
+
     text_width, text_height = draw.textbbox((0, 0), text, font=font)[2:]
     text_x = (x1 + x2 - text_width) // 2
     text_y = y - 25
 
-    draw.line([(x1, y), (text_x - text_padding, y)], fill="black", width=2)
-    draw.line([(text_x + text_width + text_padding, y), (x2, y)], fill="black", width=2)
+    # Arrows
+    draw.line([(x1 + arrow_size, y), (text_x - text_padding, y)], fill="black", width=2)
+    draw.line([(text_x + text_width + text_padding, y), (x2 - arrow_size, y)], fill="black", width=2)
 
     draw.polygon([(x1, y), (x1 + arrow_size, y - arrow_size), (x1 + arrow_size, y + arrow_size)], fill="black")
     draw.polygon([(x2, y), (x2 - arrow_size, y - arrow_size), (x2 - arrow_size, y + arrow_size)], fill="black")
 
+    # Label
     draw.text((text_x, text_y), text, fill="black", font=font)
+
+    # Ticks
+    if draw_left_tick:
+        draw.line([(x1, y - tick_length // 2), (x1, y + tick_length // 2)], fill="black", width=tick_width)
+    if draw_right_tick:
+        tick_offset = arrow_size // 60  # move it slightly left from x2
+        draw.line([(x2 - tick_offset, y - tick_length // 2), (x2 - tick_offset, y + tick_length // 2)], fill="black", width=tick_width)
+        
+def draw_center_ticks(draw, bar_positions, y_position, pu_strip_width):
+    tick_height = 50
+    tick_width = 4
+
+    for bar_x in bar_positions:
+        center_x = bar_x + (pu_strip_width // 2)
+        draw.line([(center_x, y_position - tick_height // 2),
+                   (center_x, y_position + tick_height // 2)],
+                  fill="black", width=tick_width)
+
 
 def draw_vertical_arrow(draw, y1, y2, x, text, font):
     arrow_size = 10
@@ -69,7 +94,7 @@ def draw_vertical_arrow(draw, y1, y2, x, text, font):
     draw.text((text_x, text_y), text, fill="black", font=font)
 
 def generate_image(width, height, background_type, spacing_values, overlap, center_overlap,
-                   center_holes, num_center_holes, hole_distances, pu_quantity, additional_message, additional_pu_strip, additional_distances, poly_ridge, hook_number=None, magnified_image=None, pu_sickness_image=None, center_strip_image=None, harp_name=None):
+                   center_holes, num_center_holes, hole_distances, pu_quantity, additional_message, additional_pu_strip, additional_distances, poly_ridge, hook_number=None, magnified_image=None, pu_sickness_image=None, center_strip_image=None, harp_name=None, version_number=None):
     # Determine expected spacing values count
     if center_overlap == "Yes":
         left_pu_count = pu_quantity // 2
@@ -177,10 +202,11 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
     ridge_strip_height = 40 
 
     if poly_ridge in ["Top Pu Strip", "To and Bottom Pu Strip"]:
-        canvas[y_start - ridge_strip_height : y_start, left_dummy:right_dummy + pu_strip_width] = pu_strip_color
+        canvas[y_start : y_start + ridge_strip_height, left_dummy:right_dummy + pu_strip_width] = pu_strip_color
 
     if poly_ridge in ["Bottom Pu Strip", "To and Bottom Pu Strip"]:
-        canvas[y_start + bar_height : y_start + bar_height + ridge_strip_height, left_dummy:right_dummy + pu_strip_width] = pu_strip_color
+        canvas[y_start + bar_height - ridge_strip_height : y_start + bar_height, left_dummy:right_dummy + pu_strip_width] = pu_strip_color
+
 
 
    # Drawing PU strips at calculated positions excluding center overlap
@@ -307,18 +333,20 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
 
     # Add border for poly ridge PU strips
     if poly_ridge in ["Top Pu Strip", "To and Bottom Pu Strip"]:
-        top_y = y_start - ridge_strip_height
+        top_y = y_start
         canvas[top_y:top_y+border_thickness, left_dummy:right_dummy+pu_strip_width] = border_color  # top side
-        canvas[y_start-border_thickness:y_start, left_dummy:right_dummy+pu_strip_width] = border_color  # bottom side
-        canvas[top_y:y_start, left_dummy:left_dummy+border_thickness] = border_color  # left side
-        canvas[top_y:y_start, right_dummy+pu_strip_width-border_thickness:right_dummy+pu_strip_width] = border_color  # right side
+        canvas[top_y+ridge_strip_height-border_thickness:top_y+ridge_strip_height, left_dummy:right_dummy+pu_strip_width] = border_color  # bottom side
+        canvas[top_y:top_y+ridge_strip_height, left_dummy:left_dummy+border_thickness] = border_color  # left side
+        canvas[top_y:top_y+ridge_strip_height, right_dummy+pu_strip_width-border_thickness:right_dummy+pu_strip_width] = border_color  # right side
+
 
     if poly_ridge in ["Bottom Pu Strip", "To and Bottom Pu Strip"]:
-        bottom_y = y_start + bar_height
+        bottom_y = y_start + bar_height - ridge_strip_height
         canvas[bottom_y:bottom_y+border_thickness, left_dummy:right_dummy+pu_strip_width] = border_color  # top side
         canvas[bottom_y+ridge_strip_height-border_thickness:bottom_y+ridge_strip_height, left_dummy:right_dummy+pu_strip_width] = border_color  # bottom side
         canvas[bottom_y:bottom_y+ridge_strip_height, left_dummy:left_dummy+border_thickness] = border_color  # left side
         canvas[bottom_y:bottom_y+ridge_strip_height, right_dummy+pu_strip_width-border_thickness:right_dummy+pu_strip_width] = border_color  # right side
+
 
     # Add border for center holes
     if center_holes == "Yes":
@@ -379,9 +407,9 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
         hook_path = f"static/images/{hook_number}.png"
         try:
             hook_img = Image.open(hook_path).convert("RGBA")
-            hook_img = hook_img.resize((800, 600))
+            hook_img = hook_img.resize((1200, 900))
             canvas_pil.paste(hook_img, (current_x, hook_y), hook_img)
-            current_x += 800 + 100
+            current_x += 1200 + 100
         except FileNotFoundError:
             print(f"⚠️ Hook image not found: {hook_path}")
 
@@ -390,9 +418,10 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
         aperture_path = f"static/images/{magnified_image}.png"
         try:
             aperture_img = Image.open(aperture_path).convert("RGBA")
-            aperture_img = aperture_img.resize((700, 600))
-            canvas_pil.paste(aperture_img, (current_x, hook_y), aperture_img)
-            current_x += 700 + 100
+            aperture_img = aperture_img.resize((800, 600))
+            aperture_offset = 300
+            canvas_pil.paste(aperture_img, (current_x + aperture_offset, hook_y), aperture_img)
+            current_x += 800 + 500
         except FileNotFoundError:
             print(f"⚠️ Aperture image not found: {aperture_path}")
 
@@ -422,24 +451,6 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
     
     draw = ImageDraw.Draw(canvas_pil)
     
-    # Draw Harp Name inside the canvas
-    harp_text = harp_name
-    try:
-        bold_font_path = "C:/Windows/Fonts/arialbd.ttf"  
-        title_font = ImageFont.truetype(bold_font_path, 150)  
-    except:
-        title_font = font_pil  # Fallback to previously loaded font
-
-    # Get bounding box of the text to compute width/height
-    bbox = draw.textbbox((0, 0), harp_text, font=title_font)
-    title_width = bbox[2] - bbox[0]
-
-    # Center title horizontally near top of the canvas
-    title_x = (canvas_width - title_width) // 2
-    title_y = 200  
-
-    draw.text((title_x, title_y), harp_text, fill=text_color, font=title_font)
-
     
    # Width arrow from left hook to right hook
     if spacing_values:
@@ -451,25 +462,32 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
 
     # Spacing arrows
     for i in range(len(bar_positions) - 1):
-    # First arrow: from start_x (left hook) to second bar
         if i == 0:
             x1 = start_x
             x2 = bar_positions[1]
-        # Last arrow: from last PU strip to end of right hook
+            draw_left_tick = True
+            draw_right_tick = False  # remove right tick
         elif i == len(bar_positions) - 2:
             x1 = bar_positions[-2] + pu_strip_width
             x2 = right_hook_x + hook_width
-        # All others is a default logic
+            draw_left_tick = False  # already drawn as center tick
+            draw_right_tick = True
         else:
             x1 = bar_positions[i] + pu_strip_width
             x2 = bar_positions[i + 1]
+            draw_left_tick = False
+            draw_right_tick = False  # remove right tick (drawn by center ticks)
 
-        # Skip overlap flip if needed
         if center_overlap == "Yes" and x1 > x2:
             continue
 
         arrow_y = y_start - 80
-        draw_horizontal_arrow(draw, x1, x2, arrow_y, str(spacing_values[i]), font_pil)
+        draw_horizontal_arrow(draw, x1, x2, arrow_y, str(spacing_values[i]), font_pil, draw_left_tick, draw_right_tick)
+
+
+    # Now add the center ticks:
+    tick_y_position = y_start - 80
+    draw_center_ticks(draw, bar_positions[1:-1], tick_y_position, pu_strip_width)
 
 
     # Height arrow
@@ -513,13 +531,93 @@ def generate_image(width, height, background_type, spacing_values, overlap, cent
     additional_message = additional_message.replace('\u00A0', ' ').replace('\r\n', '\n').replace('\r', '\n')
 
     # Display each line of the additional message at the bottom
-    text_position = (50, canvas_height - 800)  
+    text_position = (50, canvas_height - 500)  
     lines = additional_message.split('\n')
     y_offset = 0
     for line in lines:
         draw.text((text_position[0], text_position[1] + y_offset), line, font=font_pil, fill=text_color)
         y_offset += 70 
+        
+    # ==== Draw timestamp at bottom-right ====
+    timestamp = datetime.now().strftime("Generated on %Y-%m-%d at %H:%M:%S")
+    timestamp_font_size = 60
 
+    try:
+        timestamp_font = ImageFont.truetype(font_path, timestamp_font_size)
+    except:
+        timestamp_font = font_pil
+
+    timestamp_bbox = draw.textbbox((0, 0), timestamp, font=timestamp_font)
+    timestamp_width = timestamp_bbox[2] - timestamp_bbox[0]
+    timestamp_height = timestamp_bbox[3] - timestamp_bbox[1]
+
+    timestamp_x = canvas_width - timestamp_width - 50  # 50px padding from right
+    timestamp_y = canvas_height - timestamp_height - 50  # 50px padding from bottom
+
+    draw.text((timestamp_x, timestamp_y), timestamp, fill="black", font=timestamp_font)
+    
+    # === Embed company logo at top-left ===
+    try:
+        logo_path = "static/images/logo.png"
+        logo_img = Image.open(logo_path).convert("RGBA")
+        logo_img = logo_img.resize((2200, 400))  # Resize as needed
+
+        # Position: top-left with padding
+        logo_x = 100
+        logo_y = 100
+
+        canvas_pil.paste(logo_img, (logo_x, logo_y), logo_img)
+        # === NOW define title_y safely after logo is ready ===
+        title_y = logo_y + logo_img.size[1] + 40  # Use .size[1] = height
+    except FileNotFoundError:
+        print("⚠️ Company logo not found at static/images/logo.png")
+        title_y = 200 # Fallback in case logo fail
+        
+    # Draw Harp Name inside the canvas
+    harp_text = harp_name
+    try:
+        bold_font_path = "C:/Windows/Fonts/arialbd.ttf"  
+        title_font = ImageFont.truetype(bold_font_path, 150)  
+    except:
+        title_font = font_pil  # Fallback to previously loaded font
+
+    # Get bounding box of the text to compute width/height
+    bbox = draw.textbbox((0, 0), harp_text, font=title_font)
+    title_width = bbox[2] - bbox[0]
+
+    # Center title horizontally near top of the canvas
+    title_x = (canvas_width - title_width) // 2 
+
+    draw.text((title_x, title_y), harp_text, fill=text_color, font=title_font)
+    
+    # Draw version number below the title
+    if version_number:
+        version_font_size = 80
+        try:
+            version_font = ImageFont.truetype(font_path, version_font_size)
+        except:
+            version_font = font_pil
+
+        version_text = f"version:{version_number}"
+        version_bbox = draw.textbbox((0, 0), version_text, font=version_font)
+        version_width = version_bbox[2] - version_bbox[0]
+
+        version_x = (canvas_width - version_width) // 2
+        version_y = title_y + 180  # below harp name
+
+        draw.text((version_x, version_y), version_text, fill=text_color, font=version_font)
+
+
+        
+    # === Draw border around entire canvas ===
+    border_thickness = 6  # You can adjust thickness
+    border_color = "black"
+
+    draw.rectangle(
+        [(0, 0), (canvas_width - 1, canvas_height - 1)],
+        outline=border_color,
+        width=border_thickness
+)
 
     # Convert back to OpenCV format
     canvas = np.array(canvas_pil)
@@ -541,7 +639,8 @@ def index():
             width = int(request.form['width'])
             height = int(request.form['height'])
             pu_quantity = int(request.form['pu_quantity'])
-            harp_name = request.form['harp_name'].strip()  # Get harp name
+            harp_name = request.form['harp_name'].strip()
+            version_number = request.form['version_number'].strip()
             additional_message = request.form['additional_message'].strip() 
         except ValueError:
             return "Invalid numeric input. Please check your entries."
@@ -594,7 +693,7 @@ def index():
         additional_distances = []
         if additional_pu_strip == "Yes":
             additional_distances = [int(x) for x in request.form.getlist('additional_distances')]
-            
+              
         hook_number = request.form.get('hook_type')
         
         magnified_image = request.form.get('magnified_image')
@@ -607,10 +706,10 @@ def index():
         image_data = generate_image(width, height, background_type, spacing_values,
             overlap, center_overlap, center_holes, num_center_holes, hole_distances,
             pu_quantity, additional_message, additional_pu_strip, additional_distances, poly_ridge, hook_number=hook_number, magnified_image=magnified_image, pu_sickness_image=pu_sickness_image,
-            center_strip_image=center_strip_image, harp_name=harp_name)
+            center_strip_image=center_strip_image, harp_name=harp_name, version_number=version_number)
         
         generated_images[harp_name] = image_data
-
+ 
 
         if image_data is None:
             return "Image generation failed due to missing spacing values."
@@ -623,6 +722,7 @@ def index():
             spacing_values=spacing_values,
             hook_number=hook_number,
             magnified_image=magnified_image,
+            version_number=version_number,
             app_version=APP_VERSION  
         )
 
@@ -660,5 +760,7 @@ def download_pdf(harp_name):
 
     return send_file(pdf_file.name, as_attachment=True, download_name=f"{harp_name}.pdf", mimetype='application/pdf')
 
-    
+if __name__ == '__main__':
+    app.run(debug=True)
+
 

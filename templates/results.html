@@ -2,6 +2,9 @@
 <html>
 <head>
   <title>Generated Image - {{ harp_name }}</title>
+  {% if version_number %}
+  <p class="version-label">Version: v{{ version_number }}</p>
+{% endif %}
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
